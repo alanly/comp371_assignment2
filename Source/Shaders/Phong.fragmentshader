@@ -28,18 +28,34 @@ void main()
 	
 	//color = v_color;
 
-	// Prepare some values that we'll need
-	float d = length(lightVector); // Distance of the light from our vertex
-	vec3 I_light = (1 / pow(d, 2)) * lightColor; // Our light intensity
-	vec3 N = normalize(normal);
-	vec3 L = vec3(normalize(lightVector));
+	// Prepare some values,
+	float lightDistance   = length(vec3(lightVector));
+	vec3  lightDirection  = normalize(vec3(lightVector)); // Direction of light
+	vec3  normalDirection = normalize(normal);
+	vec3  eyeDirection    = normalize(eyeVector);
 
-	// The ambient illumination
-	// We're not given an ambient intensity, therefore we will assume 1.0.
-	vec3 I_amb = vec3(materialCoefficients.x);
+	// Determine our attenuation factor,
+	float fAttenuation = 1.0f;
 
-	// The diffused reflection
-	vec3 I_d = vec3(materialCoefficients.y) * dot(normal, L);
+	if (lightVector.w == 1) // Only calculate attenuation for point lights.
+	{
+		fAttenuation = 1.0 / (lightAttenuation.x + (lightAttenuation.y * lightDistance) + (lightAttenuation.z * pow(lightDistance, 2)));
+	}
 
-	color = (I_amb + I_d) * v_color;
+	// Generate our ambient reflection,
+	vec3 rAmbient = lightColor * materialCoefficients.x;
+
+	// Generate our diffuse reflection
+	vec3 rDiffuse = lightColor * fAttenuation * materialCoefficients.y * max(0.f, dot(normalDirection, lightDirection));
+
+	// Generate our specular reflection
+	vec3 reflectDirection = reflect(lightDirection, normalDirection);
+	vec3 rSpecular = vec3(0.f, 0.f, 0.f);
+
+	if (dot(normalDirection, lightDirection) >= 0.f)
+	{
+		rSpecular = lightColor * fAttenuation * lightDistance * materialCoefficients.z * pow(max(0.f, dot(reflectDirection, eyeDirection)), materialCoefficients.w);
+	}
+
+	color = (rSpecular + rDiffuse + rAmbient) * v_color;
 }

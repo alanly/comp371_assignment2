@@ -35,11 +35,16 @@ void main()
 	// Prepare Data for Fragment Shader
 	// Should the normal be transformed?
 	//normal = vertexNormal_modelspace;
-	normal = vec3(transpose(inverse(MV)) * vec4(vertexNormal_modelspace, 0));
+
+	// http://www.lighthouse3d.com/tutorials/glsl-tutorial/the-normal-matrix/
+	normal = vec3(transpose(inverse(MV)) * vec4(vertexNormal_modelspace, 0.f));
+
+	// Transform our vertex positions from modelspace,
+	vec3 vertexPosition_viewspace = vec3(MV * vec4(vertexPosition_modelspace, 1));
 	
 	// eyeVector = ...
-	eyeVector = vec3(vertexPosition_modelspace - vec3(ViewTransform[3]));
+	eyeVector = normalize( -(vertexPosition_viewspace) );
 
 	// lightVector = ...
-	lightVector = vec4(vertexPosition_modelspace - vec3(WorldLightPosition), WorldLightPosition.w);
+	lightVector = vec4(vec3(ViewTransform * WorldLightPosition) - vertexPosition_viewspace, WorldLightPosition.w);
 }
