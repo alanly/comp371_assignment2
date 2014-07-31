@@ -49,12 +49,12 @@ void main()
 	vec3 rDiffuse = lightColor * fAttenuation * materialCoefficients.y * max(0.f, dot(normalDirection, lightDirection));
 
 	// Generate our specular reflection
-	vec3 reflectDirection = reflect(lightDirection, normalDirection);
+	vec3 reflectDirection = reflect(- lightDirection, normalDirection);
 	vec3 rSpecular = vec3(0.f, 0.f, 0.f);
 
 	if (dot(normalDirection, lightDirection) >= 0.f)
 	{
-		rSpecular = lightColor * fAttenuation * lightDistance * materialCoefficients.z * pow(max(0.f, dot(reflectDirection, eyeDirection)), materialCoefficients.w);
+		rSpecular = lightColor * fAttenuation * materialCoefficients.z * pow(max(0.f, dot(reflectDirection, eyeDirection)), materialCoefficients.w);
 	}
 
 	color = (rSpecular + rDiffuse + rAmbient) * v_color;
