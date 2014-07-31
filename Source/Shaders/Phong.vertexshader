@@ -34,8 +34,12 @@ void main()
 
 	// Prepare Data for Fragment Shader
 	// Should the normal be transformed?
-	normal = vertexNormal_modelspace;
+	//normal = vertexNormal_modelspace;
+	normal = vec3(transpose(inverse(MV)) * vec4(vertexNormal_modelspace, 0));
 	
 	// eyeVector = ...
+	eyeVector = vec3(vertexPosition_modelspace - vec3(ViewTransform[3]));
+
 	// lightVector = ...
+	lightVector = vec4(vertexPosition_modelspace - vec3(WorldLightPosition), WorldLightPosition.w);
 }

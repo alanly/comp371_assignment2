@@ -26,5 +26,20 @@ void main()
 	// Implment Phong Shading based on the parameters above
 	// Remember that directional light don't have attenuation
 	
-	color = v_color;
+	//color = v_color;
+
+	// Prepare some values that we'll need
+	float d = length(lightVector); // Distance of the light from our vertex
+	vec3 I_light = (1 / pow(d, 2)) * lightColor; // Our light intensity
+	vec3 N = normalize(normal);
+	vec3 L = vec3(normalize(lightVector));
+
+	// The ambient illumination
+	// We're not given an ambient intensity, therefore we will assume 1.0.
+	vec3 I_amb = vec3(materialCoefficients.x);
+
+	// The diffused reflection
+	vec3 I_d = vec3(materialCoefficients.y) * dot(normal, L);
+
+	color = (I_amb + I_d) * v_color;
 }
