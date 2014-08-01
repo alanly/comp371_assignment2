@@ -55,7 +55,7 @@ void main()
 	vec3 reflectDirection = normalize(reflect(- lightDirection, normalDirection));
 	vec3 rSpecular = vec3(0.f, 0.f, 0.f);
 
-	if (dot(normalDirection, lightDirection) >= 0.f)
+	if (dot(normalDirection, lightDirection) > 0.f)
 	{
 		rSpecular = lightIntensity * materialCoefficients.z * pow(max(0.f, dot(reflectDirection, eyeDirection)), materialCoefficients.w);
 	}
