@@ -35,7 +35,55 @@ void main()
 	// Implement Gouraud shading here...
 	// ...
 
+	// http://www.lighthouse3d.com/tutorials/glsl-tutorial/the-normal-matrix/
+	vec3 normal = vec3(transpose(inverse(MV)) * vec4(vertexNormal_modelspace, 0.f));
+
+	// Transform our vertex positions from modelspace,
+	vec3 vertexPosition_viewspace = vec3(MV * vec4(vertexPosition_modelspace, 1));
+
+	vec3 eyeVector = normalize( -(vertexPosition_viewspace) );
+
+	vec4 lightVector;
+	if (WorldLightPosition.w == 1) {
+		lightVector = (ViewTransform * WorldLightPosition) - vec4(vertexPosition_viewspace, 0);
+	} else {
+		lightVector = - (ViewTransform * WorldLightPosition);
+	}
+
+	// Prepare some values,
+	float lightDistance   = length(vec3(lightVector));
+	vec3  lightDirection  = normalize(vec3(lightVector)); // Direction of light
+	vec3  normalDirection = normalize(normal);
+	vec3  eyeDirection    = normalize(eyeVector);
+
+	// Determine our attenuation factor,
+	float fAttenuation = 1.0f;
+
+	if (lightVector.w == 1) // Only calculate attenuation for point lights.
+	{
+		fAttenuation = 1.0 / (lightAttenuation.x + (lightAttenuation.y * lightDistance) + (lightAttenuation.z * pow(lightDistance, 2)));
+	}
+
+	// Generate our light intesity factor,
+	vec3 lightIntensity = fAttenuation * lightColor;
+
+	// Generate our ambient reflection,
+	vec3 rAmbient = lightColor * materialCoefficients.x;
+
+	// Generate our diffuse reflection
+	vec3 rDiffuse = lightIntensity * materialCoefficients.y * max(0.f, dot(normalDirection, lightDirection));
+
+	// Generate our specular reflection
+	vec3 reflectDirection = normalize(reflect(- lightDirection, normalDirection));
+	vec3 rSpecular = vec3(0.f, 0.f, 0.f);
+
+	if (dot(normalDirection, lightDirection) > 0.f)
+	{
+		rSpecular = lightIntensity * materialCoefficients.z * pow(max(0.f, dot(reflectDirection, eyeDirection)), materialCoefficients.w);
+	}
 
 	// This should be the final color on the Vertex, including the lighting
-	v_color =  vertexColor;
+	//v_color =  vertexColor;
+
+	v_color = (rSpecular + rDiffuse + rAmbient) * vertexColor;
 }
