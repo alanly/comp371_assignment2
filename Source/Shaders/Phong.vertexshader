@@ -46,5 +46,5 @@ void main()
 	eyeVector = normalize( -(vertexPosition_viewspace) );
 
 	// lightVector = ...
-	lightVector = vec4(vec3(ViewTransform * WorldLightPosition) - vertexPosition_viewspace, WorldLightPosition.w);
+	lightVector = (ViewTransform * WorldLightPosition) - vec4(vertexPosition_viewspace, 0);
 }
